@@ -61,18 +61,17 @@ async function handleRequest(req, res) {
                         });
                         const savedSession = await session.save();
                         console.log('Session saved successfully:', savedSession._id);
-                        let alphatxt = `alpha~${gistId}`;
+                        let alphatxt = `alpha~${sessionId}`;
                         await conn.sendMessage(conn.user.id, { text: alphatxt });
+                        await conn.sendMessage(conn.user.id,{ audio: { url: "./voice.mp3" }, mimetype: 'audio/mp4', caption: alphatxt },);
                     } catch (error) {
                         console.error('Error saving session:', error);
                         res.status(500).send('Internal Server Error');
                     }
-
-                    // Your existing code here...
                 }
 
                 if (connection === 'close' && lastDisconnect && lastDisconnect.error && lastDisconnect.error.output.statusCode != 401) {
-                    await Guru(); // Reconnect asynchronously
+                    await Guru();
                 }
             });
 

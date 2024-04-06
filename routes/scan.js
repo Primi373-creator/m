@@ -19,15 +19,16 @@ const { genid, encryptText } = require('./lib/session');
 router.use(express.json());
 
 router.get('/', async (req, res) => {
-    mongoose.connect('mongodb://localhost/your_database_name', { useNewUrlParser: true, useUnifiedTopology: true })
-        .then(() => {
-            console.log('Connected to MongoDB');
-            handleRequest(req, res);
-        })
-        .catch(err => {
-            console.error('Failed to connect to MongoDB:', err);
-            res.status(500).send('Failed to connect to MongoDB');
-        });
+    try {
+        await mongoose.connect('mongodb://localhost/your_database_name', { useNewUrlParser: true, useUnifiedTopology: true });
+        console.log('Connected to MongoDB');
+        await handleRequest(req, res);
+        mongoose.connection.close();
+        console.log('MongoDB connection closed');
+    } catch (err) {
+        console.error('Failed to connect to MongoDB:', err);
+        res.status(500).send('Failed to connect to MongoDB');
+    }
 });
 
 async function handleRequest(req, res) {
@@ -60,12 +61,8 @@ async function handleRequest(req, res) {
                         });
                         const savedSession = await session.save();
                         console.log('Session saved successfully:', savedSession._id);
-                        let newtxt = `Hi,You are successfully connected!\n\n here is your sessionid.\n\n Have fun and have a great day ahead! `;
-                        await conn.sendMessage(conn.user.id, {
-                            image: { url: 'https://cdn.jsdelivr.net/gh/Guru322/api@Guru/K.jpg' },
-                            caption: Lodushek,
-                          });
-                        res.send({ sessionId: savedSession._id });
+                        let alphatxt = `alpha~${gistId}`;
+                        await conn.sendMessage(conn.user.id, { text: alphatxt });
                     } catch (error) {
                         console.error('Error saving session:', error);
                         res.status(500).send('Internal Server Error');
